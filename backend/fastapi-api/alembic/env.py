@@ -1,13 +1,25 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+from dotenv import load_dotenv
 
-# Import all models so Alembic can detect them for autogenerate
+# Cargar variables de entorno desde .env
+load_dotenv()
+
+# Importar modelos para que Alembic los detecte en autogenerate
 from app.database import Base
 from app.user.models import User  # noqa: F401
 
 config = context.config
+
+# Inyectar la URL de la BD desde la variable de entorno
+# para no hardcodear credenciales en alembic.ini
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
+
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -15,7 +27,7 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode."""
+    """Ejecutar migraciones en modo offline."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -28,7 +40,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
+    """Ejecutar migraciones en modo online."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

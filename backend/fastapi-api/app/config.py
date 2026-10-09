@@ -4,12 +4,17 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     """
-    Application settings – replaces Spring's application.properties.
-    Values are loaded from environment variables or the .env file.
+    Configuración de la aplicación.
+    Los valores se cargan desde variables de entorno o el archivo .env.
     """
 
-    # PostgreSQL
-    DATABASE_URL: str = "postgresql://medvision:medvision_dev@localhost:5432/medvision"
+    # PostgreSQL – sin valor por defecto para forzar configuración explícita
+    DATABASE_URL: str
+
+    # JWT
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_MINUTES: int = 30
 
     # Server
     APP_NAME: str = "medvision-backend"
