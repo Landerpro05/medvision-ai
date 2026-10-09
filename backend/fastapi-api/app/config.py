@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     # Server
     APP_NAME: str = "medvision-backend"
     APP_PORT: int = 8080
+    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+
+    # Base de datos
+    SQL_ECHO: bool = False
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

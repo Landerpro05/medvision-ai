@@ -69,6 +69,41 @@ class TestAuthLogin:
         assert response.status_code == 401
         assert "access_token" not in response.json()
 
+    def test_swagger_login_correcto(self, client: TestClient):
+        db = TestingSessionLocal()
+        create_test_user(db)
+        db.close()
+
+        response = client.post("/api/auth/swagger_login", data={
+            "username": "test@example.com",
+            "password": "securepass123"
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert data["token_type"] == "bearer"
+
+    def test_swagger_login_credenciales_incorrectas(self, client: TestClient):
+        db = TestingSessionLocal()
+        create_test_user(db)
+        db.close()
+
+        # Email incorrecto
+        response = client.post("/api/auth/swagger_login", data={
+            "username": "wrong@example.com",
+            "password": "securepass123"
+        })
+        assert response.status_code == 401
+
+        # Password incorrecto
+        response2 = client.post("/api/auth/swagger_login", data={
+            "username": "test@example.com",
+            "password": "wrongpassword"
+        })
+        assert response2.status_code == 401
+
+
+
 
 class TestSeguridadYAutorizacion:
     """Tests para acceso a endpoints protegidos."""
