@@ -37,13 +37,17 @@ public class UserService {
 
     @Transactional
     public User createUser(String username, String email, String password) {
-        if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("Username already exists");
-        }
+    if (userRepository.existsByUsername(username)) {
+        throw new UserAlreadyExistsException(
+            "Username already exists"
+        );
+    }
 
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already exists");
-        }
+    if (userRepository.existsByEmail(email)) {
+        throw new UserAlreadyExistsException(
+            "Email already exists"
+        );
+    }
 
         User user = new User();
         user.setUsername(username);
