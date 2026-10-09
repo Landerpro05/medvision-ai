@@ -50,13 +50,15 @@ cd backend\fastapi-api
 Copy-Item .env.example .env
 ```
 
-Editar `.env` si es necesario. **Es obligatorio cambiar `JWT_SECRET` en producción.**
+Editar `.env` si es necesario. **Es obligatorio cambiar `JWT_SECRET` en producción.** También debes configurar los orígenes de CORS permitidos.
 
 ```env
 DATABASE_URL=postgresql://medvision:medvision_dev@localhost:5432/medvision
 JWT_SECRET=your-super-secret-jwt-key-change-me-in-production
 APP_NAME=medvision-backend
 APP_PORT=8080
+CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+# SQL_ECHO=False # Cambia a True en desarrollo para ver queries SQL
 ```
 
 ### 4. Crear entorno virtual e instalar dependencias
@@ -103,6 +105,9 @@ python -m pytest tests/ -v
 | `POST` | `/api/users` | Registrar nuevo usuario | Público |
 | `GET` | `/api/users/{id}`| Obtener usuario por ID | Propio o ADMIN |
 | `GET` | `/api/users` | Listar usuarios | Solo ADMIN |
+| `POST` | `/api/studies` | Crear un estudio radiológico | Requiere Token |
+| `GET` | `/api/studies` | Listar estudios del usuario | Requiere Token |
+| `GET` | `/api/studies/{id}`| Consultar un estudio específico | Solo si es Propio |
 
 ### Ejemplo: registrar un usuario
 
@@ -119,20 +124,10 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/users" `
 
 ## Migraciones de base de datos
 
-Las tablas fueron creadas originalmente con Flyway (Spring Boot). El proyecto ahora usa **Alembic** para futuras migraciones.
+Las tablas se gestionan mediante **Flyway** (heredado del proyecto original en Spring Boot).
+Para aplicar las migraciones a PostgreSQL (incluyendo la actualización de la tabla de estudios), simplemente reinicia el contenedor de la base de datos o el contenedor de la API de Spring Boot que actúa como runner temporal de migraciones, o ejecuta el script SQL `V3__update_studies_table.sql` directamente en PostgreSQL si estás en desarrollo.
 
-Si las tablas ya existen en PostgreSQL (creadas por Flyway), marca el estado actual de Alembic:
-
-```powershell
-alembic stamp head
-```
-
-Para crear una nueva migración:
-
-```powershell
-alembic revision --autogenerate -m "descripción del cambio"
-alembic upgrade head
-```
+*Nota: No se debe usar Alembic para modificar tablas creadas por Flyway para evitar inconsistencias.*
 
 ## Estructura del backend
 
