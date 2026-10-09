@@ -50,3 +50,9 @@ def create_user(db: Session, username: str, email: str, password: str) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    """Retrieve user by email for authentication purposes."""
+    return db.query(User).filter(User.email == email).first()
+
