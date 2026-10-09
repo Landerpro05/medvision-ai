@@ -1,14 +1,17 @@
-from passlib.context import CryptContext
-
-# Replaces Spring Security's BCryptPasswordEncoder bean
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import bcrypt
 
 
 def hash_password(password: str) -> str:
-    """Hash a plain-text password with bcrypt."""
-    return pwd_context.hash(password)
+    """Hashear una contraseña en texto plano con bcrypt."""
+    return bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt(),
+    ).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain-text password against a bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verificar una contraseña en texto plano contra un hash bcrypt."""
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"),
+        hashed_password.encode("utf-8"),
+    )
